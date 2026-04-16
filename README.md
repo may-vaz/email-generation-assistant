@@ -1,105 +1,291 @@
-# Email Generation Assistant
+# Email Generation Assistant (AI Engineer Assessment)
 
-An AI-powered email generation and evaluation system built with Google's Gemini API (free tier). Designed as an end-to-end assessment covering prompt engineering, custom evaluation metrics, and model comparison.
+## 🔹 What this project is
 
----
+This project is a simple but complete system that:
 
-## Project Structure
+1. **Generates professional emails using an LLM**
+2. **Evaluates how good those emails are using custom metrics**
+3. **Compares two different prompting strategies**
 
-```
-email-assistant/
-├── assistant.py        # Email generator with Few-Shot + CoT prompt
-├── scenarios.py        # 10 test scenarios + human reference emails
-├── evaluator.py        # 3 custom evaluation metrics (LLM-as-a-Judge)
-├── run_evaluation.py   # Full evaluation runner, outputs CSV + JSON
-├── requirements.txt
-└── README.md
-```
-
-No unnecessary folders. Every file has a single, clear responsibility.
+The goal is not just to generate emails, but to **prove which approach works better and why**.
 
 ---
 
-## Setup (Mac M1 / Apple Silicon)
+## 🔹 What problem I am solving
 
-**1. Get a free Gemini API key**
+Most AI-generated emails:
 
-Go to [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey), sign in with a Google account, and create an API key. The free tier gives you 1,500 requests/day on `gemini-2.5-flash` with no billing required.
+* Miss important details
+* Don’t match the correct tone
+* Add unnecessary filler
 
-**2. Clone and set up the environment**
+So instead of just generating emails, I built a system that:
 
-```bash
-git clone <your-repo-url>
-cd email-assistant
+* Forces the model to include all important facts
+* Controls tone properly
+* Measures output quality in a structured way
 
-python3 -m venv venv
-source venv/bin/activate
+---
 
-pip install -r requirements.txt
+## 🔹 How the system works (simple view)
+
+For each test case:
+
+1. Give the AI:
+
+   * Intent (why the email is written)
+   * Key facts (must be included)
+   * Tone (style of writing)
+
+2. Generate an email
+
+3. Evaluate the email using 3 custom metrics
+
+4. Repeat this for:
+
+   * Model A (optimized)
+   * Model B (naive)
+
+5. Compare results
+
+---
+
+## 🔹 Project Structure
+
+* `assistant.py` → Generates emails (Model A)
+* `run_evaluation.py` → Runs full pipeline + comparison
+* `evaluator.py` → Scores emails using 3 metrics
+* `scenarios.py` → 10 test cases + human reference emails
+* `results.csv / results.json` → Final evaluation output
+
+---
+
+## 🔹 Why I created 3 custom metrics
+
+The assignment required custom evaluation, so I didn’t use generic metrics like BLEU.
+
+Instead, I asked:
+👉 *What actually makes an email “good”?*
+
+I broke it into 3 core qualities:
+
+---
+
+### ✅ 1. Fact Recall (Most Important)
+
+**Why this matters:**
+If the email misses key facts, it is useless.
+
+**Example:**
+If the fact says:
+
+* “Deadline is April 18”
+
+And the model misses it → email fails.
+
+**How I measure it:**
+
+* I use an LLM as a judge
+* It checks each fact individually
+* Marks: yes / no
+
+**Formula:**
+Score = (facts included / total facts) × 10
+
+---
+
+### ✅ 2. Tone Adherence
+
+**Why this matters:**
+Same email can sound:
+
+* polite
+* aggressive
+* casual
+
+Tone changes everything.
+
+**How I measure it:**
+
+* LLM evaluates:
+
+  * wording
+  * sentence style
+  * overall feel
+
+**Output:**
+
+* Score from 1–10
+* Short explanation
+
+---
+
+### ✅ 3. Conciseness & Clarity
+
+**Why this matters:**
+Good emails are:
+
+* clear
+* not too long
+* not full of useless phrases
+
+**This metric has 2 parts:**
+
+#### A. Brevity (rule-based)
+
+Penalizes:
+
+* filler phrases (like “hope this finds you well”)
+* overly long emails
+
+#### B. Fluency (LLM-based)
+
+* checks readability and clarity
+
+**Final formula:**
+Score = 0.5 × Fluency + 0.5 × Brevity
+
+---
+
+## 🔹 Why I used these formulas
+
+* Fact Recall → ensures correctness
+* Tone → ensures communication quality
+* Conciseness → ensures usability
+
+Together, they cover:
+👉 correctness + style + readability
+
+---
+
+## 🔹 Test Scenarios
+
+I created **10 different scenarios** with:
+
+* Different tones (formal, urgent, apologetic, etc.)
+* Different contexts (job, startup, academic, support)
+* 4–5 facts each
+
+Each scenario also has a:
+👉 **Human-written reference email** (ideal output)
+
+---
+
+## 🔹 Model Comparison
+
+### 🔵 Model A (Optimized)
+
+Uses:
+
+* Strong system prompt
+* Strict rules (fact inclusion is mandatory)
+* Few-shot examples
+* Low temperature (more controlled output)
+
+👉 Goal: maximum accuracy and consistency
+
+---
+
+### 🔴 Model B (Naive)
+
+Uses:
+
+* No system prompt
+* No examples
+* Only basic input
+* Higher temperature (more randomness)
+
+👉 Goal: simulate a simple/default usage
+
+---
+
+## 🔹 Important Clarification
+
+Both models use the **same base model (Qwen2.5:7B)**
+
+The difference is:
+👉 **how the model is instructed**
+
+This shows:
+
+* Prompt engineering can significantly change output quality
+
+---
+
+## 🔹 Results
+
 ```
+Model A (Optimized)
+Fact Recall      : 9.80
+Tone Adherence   : 8.60
+Conciseness      : 9.25
+Composite Score  : 9.22
 
-**3. Set your API key**
-
-```bash
-export GEMINI_API_KEY="your_key_here"
-```
-
-Add this to your `~/.zshrc` to avoid repeating it:
-```bash
-echo 'export GEMINI_API_KEY="your_key_here"' >> ~/.zshrc
-source ~/.zshrc
+Model B (Naive)
+Fact Recall      : 9.30
+Tone Adherence   : 8.80
+Conciseness      : 9.12
+Composite Score  : 9.07
 ```
 
 ---
 
-## Running the Project
+## 🔹 What I learned from results
 
-**Quick smoke test (single email generation):**
-```bash
-python assistant.py
+### 1. Model A performs better overall
+
+* Best at including all facts
+* More structured and reliable
+
+### 2. Model B is still strong
+
+* Slightly better tone flexibility
+* But less consistent with facts
+
+---
+
+## 🔹 Key Insight (Important)
+
+Even with the **same model**, results change based on:
+
+* prompt design
+* constraints
+* temperature
+
+ This proves prompt engineering is critical
+
+---
+
+## 🔹 Final Conclusion
+
+ **Model A** 
+
+* It guarantees fact inclusion
+* Produces consistent outputs
+* Is more controllable
+
+Model B is useful for:
+
+* quick drafts
+* less critical use cases
+
+---
+
+## 🔹 How to run
+
+1. Install Ollama
+2. Pull model:
+
+```
+ollama pull qwen2.5:7b
 ```
 
-**Full evaluation (all 10 scenarios, both strategies, all 3 metrics):**
-```bash
+3. Run:
+
+```
 python run_evaluation.py
 ```
-
-This takes approximately 4–6 minutes due to rate-limit pauses on the free tier. It outputs:
-- `results.csv` — full evaluation data in tabular format
-- `results.json` — complete results with per-fact breakdowns and reasoning
-
----
-
-## Prompting Strategy: Few-Shot + Chain-of-Thought
-
-**Model A** (the main assistant) uses a combined technique:
-
-- **Few-Shot Examples:** Two worked examples are embedded in the system prompt. These anchor the model's understanding of format, length, and professional register — far more reliably than description alone.
-- **Chain-of-Thought (silent):** The system prompt instructs the model to reason through audience, fact priority, and tone before writing. The reasoning is internal — only the final email is returned. This prevents the model from defaulting to generic templates.
-
-**Model B** (baseline comparison) uses the same underlying model (`gemini-2.5-flash`) but with a bare three-line system prompt and no examples. This is an ablation test: it isolates the contribution of prompt engineering, rather than attributing differences to a different model's capabilities.
-
----
-
-## Custom Evaluation Metrics
-
-### Metric 1 — Fact Recall Score (0–10)
-**Definition:** Measures whether the generated email includes each of the key facts provided as input.  
-**Logic:** An LLM judge reviews each fact and returns yes/no per fact. Score = (facts present / total facts) × 10.  
-**Why it matters:** An email assistant that drops facts is functionally broken. Fluency means nothing if the client is missing the deadline or the link they need.
-
-### Metric 2 — Tone Adherence Score (0–10)
-**Definition:** Measures how accurately the email's vocabulary, register, and sentence structure match the requested tone.  
-**Logic:** LLM-as-a-Judge rates tone match on a 1–10 scale with a one-sentence justification. Prompt is deliberately constrained to prevent grade inflation.  
-**Why it matters:** The same information delivered in the wrong tone can damage relationships. A "firm and urgent" email that reads as passive fails its purpose entirely.
-
-### Metric 3 — Conciseness & Clarity Score (0–10)
-**Definition:** Measures whether the email communicates efficiently — no filler, no bloat.  
-**Logic:** Two sub-scores averaged:
-- **Brevity (automated):** Checks for a curated list of filler phrases (e.g., "I hope this email finds you well", "please do not hesitate") and penalises proportional to word count vs. expected length.
-- **Fluency (LLM judge):** Rates readability and structural clarity from 1–10.  
-
-**Why it matters:** Concise writing is a professional skill. Filler phrases inflate word count without adding meaning and are a reliable signal of low-quality generation.
 
 ---
 
