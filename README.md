@@ -27,7 +27,7 @@ This will:
 
 ---
 
-## 🔹 What this project does
+## What this project does
 
 This project builds an AI system that:
 
@@ -37,7 +37,7 @@ This project builds an AI system that:
 
 ---
 
-## 🔹 Project Files
+## Project Files
 
 * `assistant.py` → Email generation (Model A – optimized)
 * `run_evaluation.py` → Runs full evaluation + comparison
@@ -47,7 +47,7 @@ This project builds an AI system that:
 
 ---
 
-## 🔹 Models Compared
+## Models Compared
 
 ### Model A (Optimized)
 
@@ -65,7 +65,7 @@ This project builds an AI system that:
 
 ---
 
-## 🔹 Evaluation Metrics (Custom)
+## Evaluation Metrics (Custom)
 
 1. **Fact Recall**
 
@@ -87,7 +87,7 @@ This project builds an AI system that:
 
 ---
 
-## 🔹 Results Summary
+## Results Summary
 
 ```
 Model A (Optimized)
@@ -105,7 +105,7 @@ Composite Score  : 9.07
 
 ---
 
-## 🔹 Conclusion
+## Conclusion
 
 * Model A performs better overall due to stronger prompting and control
 * Model B performs well but is less consistent
