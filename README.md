@@ -1,4 +1,4 @@
-# Email Generation Assistant (AI Engineer Assessment)
+# Email Generation Assistant 
 
 
 
